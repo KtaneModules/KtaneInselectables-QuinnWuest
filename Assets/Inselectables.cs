@@ -23,7 +23,6 @@ public class Inselectables : MonoBehaviour
 
     public KMSelectable[] letteredButtons;
     public KMSelectable goButton;
-    public GameObject[] highlights;
     public GameObject[] coloredHighlights;
     public GameObject[] coloredSelections;
     public TextMesh[] lettersTextMesh;
@@ -92,7 +91,6 @@ public class Inselectables : MonoBehaviour
             {
                 ClearColoredHighlights();
             };
-            ClearLetters();
         }
         goButton.OnInteract += delegate ()
         {
@@ -237,6 +235,11 @@ public class Inselectables : MonoBehaviour
         {
             coloredHighlights[solvingTempList[highlight]].SetActive(true);
             coloredHighlights[solvingTempList[highlight]].GetComponent<MeshRenderer>().material = highlightMats[2];
+            if (_colorblindMode)
+            {
+                colorblindTextMesh[solvingTempList[highlight]].text = "c";
+                colorblindTextMesh[solvingTempList[highlight]].color = textColors[1];
+            }
         }
     }
 
@@ -473,8 +476,8 @@ public class Inselectables : MonoBehaviour
                 dLet.Append(", ");
             }
         }
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Correct letters are: {1}.", _moduleId, cLet);
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Decoys are: {1}.", _moduleId, dLet);
+        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Correct letters are: {1}.", _moduleId, cLet);// MANUAL CHALLENGE 
+        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Decoys are: {1}.", _moduleId, dLet);// MANUAL CHALLENGE 
         GenerateOthers();
     }
 
@@ -564,7 +567,7 @@ public class Inselectables : MonoBehaviour
             if (i != 7)
                 offsetted.Append(", ");
         }
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Generated: {1}.", _moduleId, offsetted);
+        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Generated: {1}.", _moduleId, offsetted);// MANUAL CHALLENGE 
         setLetters = SetLetters();
         StartCoroutine(setLetters);
     }
@@ -668,15 +671,6 @@ public class Inselectables : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         allowedToPress = true;
-    }
-
-
-    void ClearLetters()
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            lettersTextMesh[i].text = "";
-        }
     }
 
 #pragma warning disable 0414
