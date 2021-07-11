@@ -348,7 +348,6 @@ public class Inselectables : MonoBehaviour
     {
         StringBuilder submission = new StringBuilder();
         StringBuilder cLet = new StringBuilder();
-        cLet.Append("Correct letters are: ");
         for (int i = 0; i < chosenLetters.Count; i++)
         {
             cLet.Append(letters[chosenLetters[i]]);
