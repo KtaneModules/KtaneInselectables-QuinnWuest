@@ -209,43 +209,46 @@ public class Inselectables : MonoBehaviour
 
     void DoHighlight(int highlight)
     {
-        if (!solvingPhase)
+        if (!_moduleSolved)
         {
-            coloredHighlights[(highlight + offsets[highlight] + 8) % 8].SetActive(true);
-            if (offsets[highlight] > 0)
+            if (!solvingPhase)
             {
-                coloredHighlights[(highlight + offsets[highlight] + 8) % 8].GetComponent<MeshRenderer>().material = highlightMats[0];
-                if (_colorblindMode)
+                coloredHighlights[(highlight + offsets[highlight] + 8) % 8].SetActive(true);
+                if (offsets[highlight] > 0)
                 {
-                    colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].text = "p";
-                    colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].color = textColors[3];
+                    coloredHighlights[(highlight + offsets[highlight] + 8) % 8].GetComponent<MeshRenderer>().material = highlightMats[0];
+                    if (_colorblindMode)
+                    {
+                        colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].text = "p";
+                        colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].color = textColors[3];
+                    }
+                }
+                else
+                {
+                    coloredHighlights[(highlight + offsets[highlight] + 8) % 8].GetComponent<MeshRenderer>().material = highlightMats[1];
+                    if (_colorblindMode)
+                    {
+                        colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].text = "y";
+                        colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].color = textColors[2];
+                    }
                 }
             }
             else
             {
-                coloredHighlights[(highlight + offsets[highlight] + 8) % 8].GetComponent<MeshRenderer>().material = highlightMats[1];
+                coloredHighlights[solvingTempList[highlight]].SetActive(true);
+                coloredHighlights[solvingTempList[highlight]].GetComponent<MeshRenderer>().material = highlightMats[2];
                 if (_colorblindMode)
                 {
-                    colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].text = "y";
-                    colorblindTextMesh[(highlight + offsets[highlight] + 8) % 8].color = textColors[2];
+                    colorblindTextMesh[solvingTempList[highlight]].text = "c";
+                    colorblindTextMesh[solvingTempList[highlight]].color = textColors[1];
                 }
-            }
-        }
-        else
-        {
-            coloredHighlights[solvingTempList[highlight]].SetActive(true);
-            coloredHighlights[solvingTempList[highlight]].GetComponent<MeshRenderer>().material = highlightMats[2];
-            if (_colorblindMode)
-            {
-                colorblindTextMesh[solvingTempList[highlight]].text = "c";
-                colorblindTextMesh[solvingTempList[highlight]].color = textColors[1];
             }
         }
     }
 
     void ToggleSelection(int selection)
     {
-        if (coloredSelections[selection].activeInHierarchy)
+        if (solutionSelections.Contains(selection))
         {
             coloredSelections[selection].SetActive(false);
             
@@ -264,30 +267,26 @@ public class Inselectables : MonoBehaviour
     IEnumerator PlayStartingSound()
     {
         goButtonHeld = true;
+
         yield return new WaitForSeconds(0.2f);
+
         for (int i = 0; i < 15; i++)
-        // plays 16 different audio tracks (which when combined play a full tune). if button is released, tune stops mid way
         {
-            if (goButtonHeld)
-            {
-                if (!solvingPhase)
-                {
-                    Audio.PlaySoundAtTransform(ins[i], transform);
-                    lettersTextMesh[i / 2].color = textColors[1];
-                    yield return new WaitForSeconds(0.2608125f);
-                    if (i == 14)
-                    {
-                        solvingPhase = true;
-                        goTextMesh.color = textColors[1];
-                        GenerateSolvingScreen();
-                        for (int j = 0; j < 8; j++)
-                        {
-                            //coloredSelections[j].GetComponent<MeshRenderer>().material = highlightMats[2];
-                        }
-                    }
-                }
-            }
+            if (!goButtonHeld || solvingPhase)
+                continue;
+
+            Audio.PlaySoundAtTransform(ins[i], transform);
+            lettersTextMesh[i / 2].color = textColors[1];
+
+            yield return new WaitForSeconds(0.2608125f);
         }
+
+        if (!goButtonHeld || solvingPhase)
+            yield break;
+
+        solvingPhase = true;
+        goTextMesh.color = textColors[1];
+        GenerateSolvingScreen();
     }
 
     IEnumerator PlaySubmittingSound()
@@ -779,21 +778,26 @@ public class Inselectables : MonoBehaviour
 
     IEnumerator TwitchHandleForcedSolve()
     {
-        yield return new WaitForSeconds(1.0f);
-        GoButtonPress();
-        yield return new WaitForSeconds(4.5f);
-        OnRelease();
-        yield return new WaitForSeconds(1.5f);
+        if (!solvingPhase)
+        {
+            GoButtonPress();
+            while (!solvingPhase)
+                yield return true;
+            OnRelease();
+        }
+        while (!allowedToPress)
+            yield return true;
         for (int i = 0; i < 8; i++)
         {
-            if (chosenLetters.Contains(solvingScreenLetters[solvingTempList[i]]))
+            if (chosenLetters.Contains(solvingScreenLetters[solvingTempList[i]]) != solutionSelections.Contains(solvingTempList[i]))
             {
                 LetteredButtonPress(i);
                 yield return new WaitForSeconds(0.2f);
             }
         }
         GoButtonPress();
-        yield return new WaitForSeconds(4.5f);
+        while (!_moduleSolved)
+            yield return true;
         OnRelease();
     }
 }
