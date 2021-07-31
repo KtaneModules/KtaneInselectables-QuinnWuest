@@ -474,8 +474,8 @@ public class Inselectables : MonoBehaviour
                 dLet.Append(", ");
             }
         }
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Correct letters are: {1}.", _moduleId, cLet);// MANUAL CHALLENGE 
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Decoys are: {1}.", _moduleId, dLet);// MANUAL CHALLENGE 
+        Debug.LogFormat("[Inselectables #{0}] Correct letters are: {1}.", _moduleId, cLet);
+        Debug.LogFormat("[Inselectables #{0}] Decoys are: {1}.", _moduleId, dLet);
         GenerateOthers();
     }
 
@@ -565,7 +565,7 @@ public class Inselectables : MonoBehaviour
             if (i != 7)
                 offsetted.Append(", ");
         }
-        // MANUAL CHALLENGE Debug.LogFormat("[Inselectables #{0}] Generated: {1}.", _moduleId, offsetted);// MANUAL CHALLENGE 
+        Debug.LogFormat("[Inselectables #{0}] Generated: {1}.", _moduleId, offsetted);
         setLetters = SetLetters();
         StartCoroutine(setLetters);
     }
