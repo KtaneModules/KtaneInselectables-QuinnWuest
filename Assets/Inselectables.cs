@@ -32,8 +32,9 @@ public class Inselectables : MonoBehaviour
     public Material[] highlightMats; // magenta is positive offset, yellow is negative offset
 
     private bool allowedToPress = true;
+    private bool isTransitioning;
 
-    private static readonly string[] startMsgs = {"DEFUSERS", "DEFUSING", "EXPLODED", "EXPLODER", "DONTLOOK", "BOMBBOOM", "CIRCULAR", "DISARMED", "GOODLUCK", "BESTPONY", "NOBUTTON", "HIGHLITE", "HEREWEGO", "ORGANIZE", "WATCHOUT", "SELECTED", "NOMANUAL"};
+    private static readonly string[] startMsgs = { "DEFUSERS", "DEFUSING", "EXPLODED", "EXPLODER", "DONTLOOK", "BOMBBOOM", "CIRCULAR", "DISARMED", "GOODLUCK", "BESTPONY", "NOBUTTON", "HIGHLITE", "HEREWEGO", "ORGANIZE", "WATCHOUT", "SELECTED", "NOMANUAL" };
 
     private IEnumerator playStartingSound;
     private IEnumerator setLetters;
@@ -251,7 +252,7 @@ public class Inselectables : MonoBehaviour
         if (solutionSelections.Contains(selection))
         {
             coloredSelections[selection].SetActive(false);
-            
+
             solutionSelections.Remove(selection);
             solutionSelectionLetters.Remove(solvingScreenLetters[selection]);
         }
@@ -267,9 +268,8 @@ public class Inselectables : MonoBehaviour
     IEnumerator PlayStartingSound()
     {
         goButtonHeld = true;
-
+        isTransitioning = true;
         yield return new WaitForSeconds(0.2f);
-
         for (int i = 0; i < 15; i++)
         {
             if (!goButtonHeld || solvingPhase)
@@ -280,12 +280,11 @@ public class Inselectables : MonoBehaviour
 
             yield return new WaitForSeconds(0.2608125f);
         }
-
         if (!goButtonHeld || solvingPhase)
             yield break;
-
         solvingPhase = true;
         goTextMesh.color = textColors[1];
+        isTransitioning = false;
         GenerateSolvingScreen();
     }
 
@@ -604,7 +603,7 @@ public class Inselectables : MonoBehaviour
 
     void GetSolvingListsForHighlights()
     {
-        tryAgain:
+    tryAgain:
         int attempts = 0;
         solvingTempList.Clear();
         for (int i = 0; i < 8;)
@@ -639,7 +638,6 @@ public class Inselectables : MonoBehaviour
             }
             else
             {
-
                 goTextMesh.color = textColors[0];
                 lettersTextMesh[i - 8].text = letters[finalLetters[i - 8]];
                 lettersTextMesh[i - 8].color = textColors[0];
@@ -675,10 +673,8 @@ public class Inselectables : MonoBehaviour
     private readonly string TwitchHelpMessage = "Buttons are labeled 1-8, starting at the top, going clockwise. !{0} highlight # | !{0} cycle | !{0} press #/go | !{0} hold go | !{0} colorblind";
 #pragma warning restore 0414
 
-    private bool TwitchPlaysStrike;
     IEnumerator ProcessTwitchCommand(string command)
     {
-        TwitchPlaysStrike = false;
         string[] split = command.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
 
         if (split[0] == "colorblind" && split.Length == 1)
@@ -729,7 +725,7 @@ public class Inselectables : MonoBehaviour
                     yield return new WaitForSeconds(0.1f);
                 }
             }
-            if (_moduleSolved || TwitchPlaysStrike)
+            if (_moduleSolved)
                 yield break;
         }
 
@@ -739,12 +735,13 @@ public class Inselectables : MonoBehaviour
             {
                 yield return new WaitForSeconds(1.0f);
                 GoButtonPress();
-                yield return new WaitForSeconds(4.5f);
+                while (isTransitioning)
+                    yield return true;
                 OnRelease();
             }
             else
                 yield break;
-            if (_moduleSolved || TwitchPlaysStrike)
+            if (_moduleSolved)
                 yield break;
         }
 
@@ -759,6 +756,11 @@ public class Inselectables : MonoBehaviour
             }
             else
             {
+                if (!solvingPhase)
+                {
+                    yield return "sendtochaterror You need to be in the solving phase in order to press any buttons!";
+                    yield break;
+                }
                 foreach (string str in split.Skip(1))
                     foreach (char c in str)
                         if (!"12345678".Contains(c))
@@ -767,11 +769,10 @@ public class Inselectables : MonoBehaviour
                     foreach (char c in str)
                     {
                         int num = c - '1';
-                        yield return new WaitForSeconds(0.5f);
                         LetteredButtonPress(num);
                     }
             }
-            if (_moduleSolved || TwitchPlaysStrike)
+            if (_moduleSolved)
                 yield break;
         }
     }
@@ -790,10 +791,7 @@ public class Inselectables : MonoBehaviour
         for (int i = 0; i < 8; i++)
         {
             if (chosenLetters.Contains(solvingScreenLetters[solvingTempList[i]]) != solutionSelections.Contains(solvingTempList[i]))
-            {
                 LetteredButtonPress(i);
-                yield return new WaitForSeconds(0.2f);
-            }
         }
         GoButtonPress();
         while (!_moduleSolved)
