@@ -291,6 +291,7 @@ public class Inselectables : MonoBehaviour
     IEnumerator PlaySubmittingSound()
     {
         goButtonHeld = true;
+        isTransitioning = true;
         yield return new WaitForSeconds(0.2f);
         for (int i = 0; i < 16; i++)
         // plays 16 different audio tracks (which when combined play a full tune). if button is released, tune stops mid way
@@ -311,6 +312,7 @@ public class Inselectables : MonoBehaviour
                 Audio.PlaySoundAtTransform("insCorrect", transform);
             }
         }
+        isTransitioning = false;
     }
 
     void TestAnswer()
