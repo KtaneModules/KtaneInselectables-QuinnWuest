@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
-using KModkit;
-using System.Text.RegularExpressions;
 
 public class Inselectables : MonoBehaviour
 {
@@ -15,8 +13,8 @@ public class Inselectables : MonoBehaviour
     public KMAudio Audio;
     public KMColorblindMode ColorblindMode;
 
-    static int _moduleIdCounter = 1;
-    int _moduleId;
+    private static int _moduleIdCounter = 1;
+    private int _moduleId;
     private bool _moduleSolved = false;
 
     private bool _colorblindMode;
@@ -65,7 +63,7 @@ public class Inselectables : MonoBehaviour
     private int removeFromList = 0;
     private List<int> chosenDecoyIxs = new List<int>();
 
-    void Start()
+    private void Start()
     {
         _moduleId = _moduleIdCounter++;
         SetColorblindMode(ColorblindMode.ColorblindModeActive);
@@ -119,17 +117,17 @@ public class Inselectables : MonoBehaviour
         GetComponent<KMBombModule>().OnActivate += ActivateModule;
     }
 
-    void ActivateModule()
+    private void ActivateModule()
     {
         GenerateSolution();
     }
 
-    void SetColorblindMode(bool active)
+    private void SetColorblindMode(bool active)
     {
         _colorblindMode = active;
     }
 
-    void ClearColoredHighlights()
+    private void ClearColoredHighlights()
     {
         for (int i = 0; i < coloredHighlights.Length; i++)
         {
@@ -138,7 +136,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void ClearColoredSelections()
+    private void ClearColoredSelections()
     {
         for (int i = 0; i < coloredSelections.Length; i++)
         {
@@ -146,7 +144,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void LetteredButtonPress(int letteredButton)
+    private void LetteredButtonPress(int letteredButton)
     {
         if (!_moduleSolved)
         {
@@ -157,7 +155,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void GoButtonPress()
+    private void GoButtonPress()
     {
         if (!_moduleSolved)
         {
@@ -178,7 +176,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void OnRelease()
+    private void OnRelease()
     {
         if (!_moduleSolved)
         {
@@ -208,7 +206,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void DoHighlight(int highlight)
+    private void DoHighlight(int highlight)
     {
         if (!_moduleSolved)
         {
@@ -247,7 +245,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void ToggleSelection(int selection)
+    private void ToggleSelection(int selection)
     {
         if (solutionSelections.Contains(selection))
         {
@@ -265,7 +263,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    IEnumerator PlayStartingSound()
+    private IEnumerator PlayStartingSound()
     {
         goButtonHeld = true;
         isTransitioning = true;
@@ -288,7 +286,7 @@ public class Inselectables : MonoBehaviour
         GenerateSolvingScreen();
     }
 
-    IEnumerator PlaySubmittingSound()
+    private IEnumerator PlaySubmittingSound()
     {
         goButtonHeld = true;
         isTransitioning = true;
@@ -315,7 +313,7 @@ public class Inselectables : MonoBehaviour
         isTransitioning = false;
     }
 
-    void TestAnswer()
+    private void TestAnswer()
     {
         int testing = 0;
         if (solutionSelections.Count != 3)
@@ -344,7 +342,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    IEnumerator Strike()
+    private IEnumerator Strike()
     {
         StringBuilder submission = new StringBuilder();
         StringBuilder cLet = new StringBuilder();
@@ -403,7 +401,7 @@ public class Inselectables : MonoBehaviour
         GenerateSolution();
     }
 
-    void Solve()
+    private void Solve()
     {
         GetComponent<KMBombModule>().HandlePass();
         StringBuilder submission = new StringBuilder();
@@ -430,7 +428,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    void GenerateSolution()
+    private void GenerateSolution()
     {
         if (!(strike == null))
             StopCoroutine(strike);
@@ -480,7 +478,7 @@ public class Inselectables : MonoBehaviour
         GenerateOthers();
     }
 
-    void GenerateOthers()
+    private void GenerateOthers()
     {
         indexLetters.Clear();
         for (int i = 0; i < chosenLetters.Count; i++)
@@ -534,7 +532,7 @@ public class Inselectables : MonoBehaviour
         GenerateOffsets();
     }
 
-    void GenerateOffsets()
+    private void GenerateOffsets()
     {
         StringBuilder offsetted = new StringBuilder();
         offsets.Clear();
@@ -571,7 +569,7 @@ public class Inselectables : MonoBehaviour
         StartCoroutine(setLetters);
     }
 
-    void GenerateSolvingScreen()
+    private void GenerateSolvingScreen()
     {
         solvingScreenLetters.Clear();
         for (int i = 0; i < 8;)
@@ -603,7 +601,7 @@ public class Inselectables : MonoBehaviour
         StartCoroutine(setSolvingLetters);
     }
 
-    void GetSolvingListsForHighlights()
+    private void GetSolvingListsForHighlights()
     {
     tryAgain:
         int attempts = 0;
@@ -627,7 +625,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    IEnumerator SetLetters()
+    private IEnumerator SetLetters()
     {
         allowedToPress = false;
         ClearColoredHighlights();
@@ -651,7 +649,7 @@ public class Inselectables : MonoBehaviour
 
     }
 
-    IEnumerator SetSolvingLetters()
+    private IEnumerator SetSolvingLetters()
     {
         allowedToPress = false;
         ClearColoredHighlights();
@@ -675,7 +673,7 @@ public class Inselectables : MonoBehaviour
     private readonly string TwitchHelpMessage = "Buttons are labeled 1-8, starting at the top, going clockwise. !{0} highlight # | !{0} cycle | !{0} press #/go | !{0} hold go | !{0} colorblind";
 #pragma warning restore 0414
 
-    IEnumerator ProcessTwitchCommand(string command)
+    private IEnumerator ProcessTwitchCommand(string command)
     {
         string[] split = command.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -758,6 +756,7 @@ public class Inselectables : MonoBehaviour
             }
             else
             {
+                yield return null;
                 if (!solvingPhase)
                 {
                     yield return "sendtochaterror You need to be in the solving phase in order to press any buttons!";
@@ -779,7 +778,7 @@ public class Inselectables : MonoBehaviour
         }
     }
 
-    IEnumerator TwitchHandleForcedSolve()
+    private IEnumerator TwitchHandleForcedSolve()
     {
         if (!solvingPhase)
         {
