@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
   m_Name: ModConfig
   m_EditorClassIdentifier: 
-  id: InselectablesModule
+  id: inselectables
   title: Inselectables
   author: Quinn Wuest
   description: "\u042F \u0442\u0432\u043E\u0439 \u0441\u043B\u0443\u0433\u0430, \u044F

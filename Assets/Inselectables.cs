@@ -670,7 +670,7 @@ public class Inselectables : MonoBehaviour
     }
 
 #pragma warning disable 0414
-    private readonly string TwitchHelpMessage = "Buttons are labeled 1-8, starting at the top, going clockwise. !{0} highlight # | !{0} cycle | !{0} press #/go | !{0} hold go | !{0} colorblind";
+    private readonly string TwitchHelpMessage = "Buttons are labeled 1-8, starting at the top, going clockwise. !{0} highlight # | !{0} cycle/cyclefast | !{0} press #/go | !{0} hold go | !{0} colorblind";
 #pragma warning restore 0414
 
     private IEnumerator ProcessTwitchCommand(string command)
@@ -685,14 +685,15 @@ public class Inselectables : MonoBehaviour
             yield break;
         }
 
-        if (split[0] == "cycle" && split.Length == 1)
+        if ((split[0] == "cycle" || split[0] == "cyclefast") && split.Length == 1)
         {
             yield return new WaitForSeconds(1.0f);
+            var cycleTime = split[0] == "cyclefast" ? 0.4f : 2.0f;
             for (int i = 0; i < 8; i++)
             {
                 DoHighlight(i);
                 lettersTextMesh[i].color = textColors[6];
-                yield return new WaitForSeconds(2.0f);
+                yield return new WaitForSeconds(cycleTime);
                 ClearColoredHighlights();
                 if (!solvingPhase)
                     lettersTextMesh[i].color = textColors[0];
